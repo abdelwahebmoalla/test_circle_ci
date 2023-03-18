@@ -1,26 +1,31 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
+orbs:
+  welcome: circleci/welcome-orb@0.4.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  echo_hello: # this can be any name you choose
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: circleci/node:13.8.0
     steps:
-      - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: echo_hello
+          command: |
+            echo hello
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+  echo_world:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: echo_world
+          command: |
+            echo world
+
 workflows:
-  say-hello-workflow:
+  test_my_app:
     jobs:
-      - say-hello
+      - welcome/run
+      - echo_hello
+      - echo_world:
+          requires:
+            - echo_hello # only deploy if the echo_hello job has completed
